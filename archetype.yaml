@@ -1,0 +1,13 @@
+---
+description: "A Rust gRPC-based Microservice"
+authors: ["Jimmie Fulton <jimmie.fulton@gmail.com>"]
+languages: ["Rust"]
+frameworks: ["Tonic"]
+tags: ["Service", "gRPC"]
+
+requires:
+  archetect: 2.0.0-ALPHA.15
+
+components: {}
+
+

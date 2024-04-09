@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package {{ project_prefix }}.{{ project_suffix }};
+
+service {{ ProjectName }} {
+    rpc Find{{ ProjectPrefix }}(Find{{ ProjectPrefix }}Request) returns (Find{{ ProjectPrefix }}Response) {}
+    rpc Create{{ ProjectPrefix }}(Create{{ ProjectPrefix }}Request) returns (Create{{ ProjectPrefix }}Response) {}
+    rpc Update{{ ProjectPrefix }}(Update{{ ProjectPrefix }}Request) returns (Update{{ ProjectPrefix }}Response) {}
+    rpc Get{{ ProjectPrefix }}List(Get{{ ProjectPrefix }}ListRequest) returns (Get{{ ProjectPrefix }}ListResponse) {}
+}
+
+message Id {
+    string value = 1;
+}
+
+message {{ ProjectPrefix }} {
+    Id id = 1;
+    string contents = 2;
+}
+
+message Find{{ ProjectPrefix }}Request {
+    Id id = 1;
+}
+
+message Find{{ ProjectPrefix }}Response {
+    {{ ProjectPrefix }} record = 1;
+}
+
+message Create{{ ProjectPrefix }}Request {
+    string contents = 1;
+}
+
+message Create{{ ProjectPrefix }}Response {
+    {{ ProjectPrefix }} record = 1;
+}
+
+message Update{{ ProjectPrefix }}Request {
+    {{ ProjectPrefix }} record = 1;
+}
+
+message Update{{ ProjectPrefix }}Response {
+    {{ ProjectPrefix }} record = 1;
+}
+
+message Get{{ ProjectPrefix }}ListRequest {
+    uint32 page_size = 1;
+    uint32 page = 2;
+}
+
+message Get{{ ProjectPrefix }}ListResponse {
+    repeated {{ ProjectPrefix }} records = 1;
+    uint32 total_pages = 2;
+}

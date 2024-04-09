@@ -1,0 +1,27 @@
+[package]
+name = "{{ project_name }}_server"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+{{ project_name }}_core = { path = "../{{ project_name }}_core" }
+{{ project_name }}_persistence = { path = "../{{ project_name }}_persistence" }
+
+anyhow = "1.0"
+serde = {version = "1.0", features = ["serde_derive"] }
+tonic = "0.6.2"
+tonic-health = "0.5.0"
+tonic-reflection = "0.3.0"
+tokio = {version = "1", features = ["rt-multi-thread", "time", "macros", "net"]}
+tokio-stream = "0.1"
+tracing = "0.1"
+tracing-attributes = "0.1"
+
+[dev-dependencies]
+{{ project_name }}_client = { path = "../{{ project_name }}_client" }
+
+[[test]]
+name = "server"
+path = "tests/server/lib.rs"
