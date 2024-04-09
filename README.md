@@ -19,5 +19,5 @@ A Rust gRPC-based Microservice archetype, with the following qualities:
 To generate a project from this archetype using [Archetect](https://github.com/archetect/archetect):
 
 ```shell
-archetect render https://github.com/archetect/archetype-rust-service-tonic-workspace.git
+archetect render https://github.com/archetect-rust/rust-service-tonic-grpc.archetype.git
 ```
