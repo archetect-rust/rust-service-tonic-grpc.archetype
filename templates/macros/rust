@@ -1,0 +1,4 @@
+
+{%- macro entity_proto_imports(entity) -%}
+use crate::proto::{{'{'}}{{ entity["EntityName"]}}, Create{{ entity["EntityName"]}}Request, Get{{ entity["EntityName"]}}Request, Get{{ entity["EntityName"] | pluralize }}Request, Get{{ entity["EntityName"] | pluralize }}Response, Update{{ entity["EntityName"] }}Request};
+{%- endmacro -%}

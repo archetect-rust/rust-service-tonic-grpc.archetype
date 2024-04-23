@@ -4,14 +4,17 @@ use anyhow::Result;
 pub use sea_orm;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
 use sea_schema::migration::migrator::MigratorTrait;
-use testcontainers_async::modules::postgresql::{PostgresContainer, PostgresImage};
 use testcontainers_async::{DatabaseContainer, Image};
+use testcontainers_async::modules::postgresql::{PostgresContainer, PostgresImage};
+
+pub use page::Page;
 
 use crate::settings::PersistenceSettings;
 
 pub mod entities;
 mod r#impl;
 mod migrations;
+mod page;
 pub mod settings;
 
 pub type DbResult<T> = core::result::Result<T, DbErr>;
@@ -104,9 +107,4 @@ impl Builder {
 
         Ok({{ ProjectName }}Persistence { connection, temp_db })
     }
-}
-
-pub struct Page<T> {
-    pub records: Vec<T>,
-    pub total_pages: usize,
 }

@@ -1,8 +1,8 @@
 use crate::sea_orm::entity::prelude::*;
-use crate::Page;
 use crate::{{'{'}}{{ ProjectName }}Persistence, DbResult};
 
 use crate::entities::*;
+use crate::page::Page;
 
 impl {{ ProjectName }}Persistence {
     pub async fn find_{{ project_prefix }}(
@@ -31,15 +31,16 @@ impl {{ ProjectName }}Persistence {
 
     pub async fn get_{{ project_prefix }}_list(
         &self,
+        index: usize,
         page_size: usize,
-        page: usize,
     ) -> DbResult<Page<{{ project_prefix }}::Model>> {
+        let page_size = page_size.min(100);
         let paginator =
-            {{ project_prefix }}::Entity::find().paginate(self.connection(), if page_size > 0 { page_size } else { 10 });
+            {{ project_prefix }}::Entity::find().paginate(self.connection(), page_size);
 
-        let records = paginator.fetch_page(page).await?;
-        let total_pages = paginator.num_pages().await?;
+        let records = paginator.fetch_page(index).await?;
+        let total_records = paginator.num_items().await?;
 
-        Ok(Page { records, total_pages })
+        Ok(Page::new(records, index, page_size, total_records))
     }
 }

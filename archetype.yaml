@@ -6,8 +6,10 @@ frameworks: ["Tonic"]
 tags: ["Service", "gRPC"]
 
 requires:
-  archetect: 2.0.0-ALPHA.15
+  archetect: 2.0.0-ALPHA.17
 
-components: {}
+components:
+  model-casing: https://github.com/archetect/archetect-model-casing.archetype.git
+  generate-protobuf: https://github.com/archetect/archetect-protobuf-generator.archetype.git
 
 

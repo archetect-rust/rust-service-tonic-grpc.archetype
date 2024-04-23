@@ -1,5 +1,7 @@
 let context = #{};
 
+
+
 context += prompt("Project Prefix:", "project-prefix", #{
     default_value: "",
     cases: CasedIdentityCasedValue(PROGRAMMING_CASES),
@@ -24,7 +26,24 @@ context += prompt("Service Port:", "service-port", #{
     max: 65534,
 });
 
+context += render(Archetype("model-casing"), ANSWERS + #{
+    default_model: context["project-prefix"],
+});
+
+if switch_enabled("debug-context") {
+    display(as_yaml(context));
+}
+
 render(Directory("contents/base"), context);
+
+let protobuf_archetype = Archetype("generate-protobuf");
+render(protobuf_archetype, Path(`${context["project-name"]}/specs/self`), context);
+
+if context.applications != () {
+    for application in context.applications.values() {
+        render(protobuf_archetype, Path(`${context["project-name"]}/specs/clients/protobufs`), application);
+    }
+}
 
 // return context
 context
