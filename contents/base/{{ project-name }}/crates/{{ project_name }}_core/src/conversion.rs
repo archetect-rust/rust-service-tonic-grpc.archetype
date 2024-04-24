@@ -12,10 +12,11 @@ pub trait ConvertTo<T>: Sized {
 pub trait ConvertFrom<T>: Sized {
     fn convert_from(value: T) -> Self;
 }
-
-impl ConvertFrom<{{ project_prefix }}::Model> for {{ ProjectPrefix }} {
-    fn convert_from(value: {{ project_prefix }}::Model) -> Self {
-        {{ ProjectPrefix }} {
+{%- for entity_key in model.entities -%}
+{%- set entity = model.entities[entity_key] %}
+impl ConvertFrom<{{ entity["entity_name"] }}::Model> for {{ entity["EntityName"] }} {
+    fn convert_from(value: {{ entity["entity_name"] }}::Model) -> Self {
+        {{ entity["EntityName"] }} {
             id: Some(Id {
                 value: value.id.to_string(),
             }),
@@ -24,14 +25,15 @@ impl ConvertFrom<{{ project_prefix }}::Model> for {{ ProjectPrefix }} {
     }
 }
 
-impl ConvertTo<{{ project_prefix }}::ActiveModel> for {{ ProjectPrefix }} {
-    fn convert_to(self) -> std::result::Result<{{ project_prefix }}::ActiveModel, Status> {
-        Ok({{ project_prefix }}::ActiveModel {
+impl ConvertTo<{{ entity["entity_name"] }}::ActiveModel> for {{ entity["EntityName"] }} {
+    fn convert_to(self) -> std::result::Result<{{ entity["entity_name"] }}::ActiveModel, Status> {
+        Ok({{ entity["entity_name"] }}::ActiveModel {
             id: ActiveValue::Set(self.id.convert_to()?),
             contents: ActiveValue::Set(self.contents),
         })
     }
 }
+{%- endfor %}
 
 impl ConvertTo<Uuid> for Option<Id> {
     fn convert_to(self) -> Result<Uuid, Status> {

@@ -13,36 +13,44 @@ impl MigrationName for Migration {
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> DbResult<()> {
+{%- for entity_key in model.entities -%}
+{%- set entity = model.entities[entity_key] %}
         manager
             .create_table(
                 Table::create()
-                    .table(entities::{{ project_prefix }}::Entity)
+                    .table(entities::{{ entity["entity_name"] }}::Entity)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(entities::{{ project_prefix }}::Column::Id)
+                        ColumnDef::new(entities::{{ entity["entity_name"] }}::Column::Id)
                             .uuid()
                             .not_null()
                             .primary_key()
                             .extra("DEFAULT gen_random_uuid()".to_owned()),
                     )
                     .col(
-                        ColumnDef::new(entities::{{ project_prefix }}::Column::Contents)
+                        ColumnDef::new(entities::{{ entity["entity_name"] }}::Column::Contents)
                             .string()
                             .not_null(),
                     )
                     .to_owned(),
-            )
-            .await
-    }
+            ).await?;
+        {%- endfor %}
+
+        Ok(())
+     }
 
     async fn down(&self, manager: &SchemaManager) -> DbResult<()> {
+{%- for entity_key in model.entities -%}
+{%- set entity = model.entities[entity_key] %}
         manager
             .drop_table(
                 Table::drop()
-                    .table(entities::{{ project_prefix }}::Entity)
+                    .table(entities::{{ entity["entity_name"] }}::Entity)
                     .if_exists()
                     .to_owned(),
-            )
-            .await
+            ).await?;
+        {% endfor %}
+
+        Ok(())
     }
 }

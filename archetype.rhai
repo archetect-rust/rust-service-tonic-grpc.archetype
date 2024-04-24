@@ -35,6 +35,9 @@ if switch_enabled("debug-context") {
 }
 
 render(Directory("contents/base"), context);
+for entity in context.model.entities.values() {
+    render(Directory("contents/entity_persistence"), context + entity);
+}
 
 let protobuf_archetype = Archetype("generate-protobuf");
 render(protobuf_archetype, Path(`${context["project-name"]}/specs/self`), context);
