@@ -14,13 +14,17 @@ pub trait ConvertFrom<T>: Sized {
 }
 {%- for entity_key in model.entities -%}
 {%- set entity = model.entities[entity_key] %}
+
 impl ConvertFrom<{{ entity["entity_name"] }}::Model> for {{ entity["EntityName"] }} {
     fn convert_from(value: {{ entity["entity_name"] }}::Model) -> Self {
         {{ entity["EntityName"] }} {
             id: Some(Id {
                 value: value.id.to_string(),
             }),
-            contents: value.contents,
+{%- for field_key in entity.fields -%}
+{%- set field = entity.fields[field_key] %}
+            {{ field["field_name"] }} : value.{{ field["field_name"] }},
+{%- endfor %}
         }
     }
 }
@@ -29,7 +33,10 @@ impl ConvertTo<{{ entity["entity_name"] }}::ActiveModel> for {{ entity["EntityNa
     fn convert_to(self) -> std::result::Result<{{ entity["entity_name"] }}::ActiveModel, Status> {
         Ok({{ entity["entity_name"] }}::ActiveModel {
             id: ActiveValue::Set(self.id.convert_to()?),
-            contents: ActiveValue::Set(self.contents),
+{%- for field_key in entity.fields -%}
+{%- set field = entity.fields[field_key] %}
+            {{ field["field_name"] }}: ActiveValue::Set(self.{{ field["field_name"] }}),
+{%- endfor %}
         })
     }
 }

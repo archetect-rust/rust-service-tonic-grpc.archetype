@@ -33,17 +33,17 @@ impl {{ ProjectName }}Persistence {
 
     pub async fn get_{{ entity["entity_name"] }}_list(
         &self,
-        index: usize,
-        page_size: usize,
+        page_index: u32,
+        page_size: u32,
     ) -> DbResult<Page<{{ entity["entity_name"] }}::Model>> {
         let page_size = page_size.min(100);
         let paginator =
-            {{ entity["entity_name"] }}::Entity::find().paginate(self.connection(), page_size);
+            {{ entity["entity_name"] }}::Entity::find().paginate(self.connection(), page_size as usize);
 
-        let records = paginator.fetch_page(index).await?;
-        let total_records = paginator.num_items().await?;
+        let records = paginator.fetch_page(page_index as usize).await?;
+        let total_records = paginator.num_items().await? as u64;
 
-        Ok(Page::new(records, index, page_size, total_records))
+        Ok(Page::new(records, page_index, page_size, total_records))
     }
 
     {%- endfor %}

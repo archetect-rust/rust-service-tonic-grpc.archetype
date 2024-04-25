@@ -1,21 +1,21 @@
 pub struct Page<T> {
     pub records: Vec<T>,
-    pub index: usize,
-    pub next: usize,
+    pub index: u32,
+    pub next: u32,
     pub has_next: bool,
-    pub previous: usize,
+    pub previous: u32,
     pub has_previous: bool,
-    pub total_pages: usize,
-    pub total_records: usize,
+    pub total: u32,
+    pub total_records: u64,
 }
 
 impl<T> Page<T> {
-    pub fn new(records: Vec<T>, index: usize, page_size: usize, total_records: usize) -> Page<T> {
-        let total_pages = (total_records as f32 / page_size as f32).ceil() as usize;
-        let index = index.min(if total_pages == 0 { 0 } else { total_pages - 1 });
-        let next = (index + 1).min(if total_pages == 0 { 0 } else { total_pages - 1 });
+    pub fn new(records: Vec<T>, index: u32, page_size: u32, total_records: u64) -> Page<T> {
+        let total = (total_records as f32 / page_size as f32).ceil() as u32;
+        let index = index.min(if total == 0 { 0 } else { total - 1 });
+        let next = (index + 1).min(if total == 0 { 0 } else { total - 1 });
         let has_next = next != index;
-        let previous = if index == 0 { 0 } else { index - 1 };
+        let previous = if index == 0 { 0 } else { index - 1 } as u32;
         let has_previous = previous != index;
         Page {
             records,
@@ -24,7 +24,7 @@ impl<T> Page<T> {
             has_next,
             previous,
             has_previous,
-            total_pages,
+            total,
             total_records,
         }
     }
@@ -43,8 +43,8 @@ mod tests {
         assert_eq!(page.has_next, true);
         assert_eq!(page.previous, 0);
         assert_eq!(page.has_previous, false);
+        assert_eq!(page.total, 10);
         assert_eq!(page.total_records, 100);
-        assert_eq!(page.total_pages, 10);
     }
 
 
@@ -57,8 +57,8 @@ mod tests {
         assert_eq!(page.has_next, true);
         assert_eq!(page.previous, 4);
         assert_eq!(page.has_previous, true);
+        assert_eq!(page.total, 10);
         assert_eq!(page.total_records, 100);
-        assert_eq!(page.total_pages, 10);
     }
 
     #[test]
@@ -70,8 +70,8 @@ mod tests {
         assert_eq!(page.has_next, false);
         assert_eq!(page.previous, 8);
         assert_eq!(page.has_previous, true);
+        assert_eq!(page.total, 10);
         assert_eq!(page.total_records, 100);
-        assert_eq!(page.total_pages, 10);
     }
 
     #[test]
@@ -83,8 +83,8 @@ mod tests {
         assert_eq!(page.has_next, false);
         assert_eq!(page.previous, 0);
         assert_eq!(page.has_previous, false);
+        assert_eq!(page.total, 0);
         assert_eq!(page.total_records, 0);
-        assert_eq!(page.total_pages, 0);
     }
 
     #[test]
@@ -96,7 +96,7 @@ mod tests {
         assert_eq!(page.has_next, false);
         assert_eq!(page.previous, 0);
         assert_eq!(page.has_previous, false);
+        assert_eq!(page.total, 1);
         assert_eq!(page.total_records, 5);
-        assert_eq!(page.total_pages, 1);
     }
 }

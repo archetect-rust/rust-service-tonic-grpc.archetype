@@ -12,4 +12,6 @@ components:
   model-casing: https://github.com/archetect/archetect-model-casing.archetype.git
   generate-protobuf: https://github.com/archetect/archetect-protobuf-generator.archetype.git
 
+templating:
+  undefined_behavior: Lenient
 

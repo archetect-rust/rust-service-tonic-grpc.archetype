@@ -1,3 +1,4 @@
+{% import "macros/rust" as rust -%}
 use sea_schema::migration::{sea_query::*, *};
 
 use crate::{entities, DbResult};
@@ -27,11 +28,12 @@ impl MigrationTrait for Migration {
                             .primary_key()
                             .extra("DEFAULT gen_random_uuid()".to_owned()),
                     )
+{%- for field_key in entity.fields -%}
+{%- set field = entity.fields[field_key] %}
                     .col(
-                        ColumnDef::new(entities::{{ entity["entity_name"] }}::Column::Contents)
-                            .string()
-                            .not_null(),
+                        {{ rust.field_column_definition(entity, field) }}
                     )
+{%- endfor %}
                     .to_owned(),
             ).await?;
         {%- endfor %}

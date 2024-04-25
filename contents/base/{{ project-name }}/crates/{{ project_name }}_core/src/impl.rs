@@ -48,20 +48,21 @@ impl {{ ProjectName }} for {{ ProjectName }}Core {
 
         let response = self
             .persistence
-            .get_{{ entity["entity_name"] }}_list(request.start_page as usize, request.page_size as usize)
+            .get_{{ entity["entity_name"] }}_list(request.page_index, request.page_size)
             .await;
 
         match response {
-            Ok(Page { records, index: _, next, has_next, previous, has_previous, total_pages, total_records }) => {
+            Ok(Page { records, index, next, has_next, previous, has_previous, total, total_records }) => {
                 let records = records.into_iter().map({{ entity["EntityName"] }}::convert_from).collect();
                 Ok(Response::new(Get{{ entity["EntityName"] | pluralize }}Response {
-                    {{ entity["entity_name"] | pluralize }}: records,
+                    records,
+                    index,
+                    next,
                     has_next,
+                    previous,
                     has_previous,
-                    next_page: next as i32,
-                    previous_page: previous as i32,
-                    total_pages: total_pages as i32,
-                    total_elements: total_records as i64,
+                    total,
+                    total_records,
                 }))
             }
             Err(err) => Err(Status::internal(format!("Database Error: '{err}'"))),
