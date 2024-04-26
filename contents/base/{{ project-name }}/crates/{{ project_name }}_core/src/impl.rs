@@ -1,5 +1,6 @@
 {% import "macros/rust" as rust -%}
 use tonic::{Request, Response, Status};
+use tracing::info;
 
 use {{ project_name }}_persistence::Page;
 
@@ -14,11 +15,9 @@ use crate::proto::{{ project_name }}_server::{{ ProjectName }};
 impl {{ ProjectName }} for {{ ProjectName }}Core {
 {% for entity_key in model.entities -%}
 {%- set entity = model.entities[entity_key] %}
-    async fn create_{{ entity["entity_name"] }}(&self, request: Request<Create{{ entity["EntityName"] }}Request>) -> Result<Response<{{ entity["EntityName"] }}>, Status> {
-        let {{ entity["entity_name"] }} = request
-            .into_inner()
-            .{{ entity["entity_name"] }}
-            .ok_or(Status::invalid_argument("{{ entity["EntityName"] }} missing"))?;
+    async fn create_{{ entity["entity_name"] }}(&self, request: Request<{{ entity["EntityName"] }}>) -> Result<Response<{{ entity["EntityName"] }}>, Status> {
+        let {{ entity["entity_name"] }} = request.into_inner();
+        info!("Creating: {:?}", {{ entity["entity_name"] }});
 
         self.persistence.insert_{{ entity["entity_name"] }}({{ entity["entity_name"] }}.convert_to()?)
             .await
@@ -28,7 +27,9 @@ impl {{ ProjectName }} for {{ ProjectName }}Core {
     }
 
     async fn get_{{ entity["entity_name"] }}(&self, request: Request<Get{{ entity["EntityName"] }}Request>) -> Result<Response<{{ entity["EntityName"] }}>, Status> {
-        let id = request.into_inner().id.convert_to()?;
+        let request = request.into_inner();
+        info!("Getting {{ entity["EntityName"] }}: {:?}", request);
+        let id = request.id.convert_to()?;
 
         self.persistence.find_{{ entity["entity_name"] }}(id)
             .await
@@ -44,7 +45,7 @@ impl {{ ProjectName }} for {{ ProjectName }}Core {
 
     async fn get_{{ entity["entity_name"] | pluralize }}(&self, request: Request<Get{{ entity["EntityName"] | pluralize }}Request>) -> Result<Response<Get{{ entity["EntityName"] | pluralize }}Response>, Status> {
         let request = request.into_inner();
-        tracing::info!("Received: {:?}", request);
+        info!("Getting {{ entity["EntityName"] | pluralize }}: {:?}", request);
 
         let response = self
             .persistence
@@ -69,10 +70,13 @@ impl {{ ProjectName }} for {{ ProjectName }}Core {
         }
     }
 
-    async fn update_{{ entity["entity_name"] }}(&self, request: Request<Update{{ entity["EntityName"] }}Request>) -> Result<Response<{{ entity["EntityName"] }}>, Status> {
-        let {{ entity["entity_name"] }} = request.into_inner()
-            .{{ entity["entity_name"] }}
-            .ok_or(Status::invalid_argument("Catalog missing"))?;
+    async fn update_{{ entity["entity_name"] }}(&self, request: Request<{{ entity["EntityName"] }}>) -> Result<Response<{{ entity["EntityName"] }}>, Status> {
+        let {{ entity["entity_name"] }} = request.into_inner();
+        info!("Updating: {:?}", {{ entity["entity_name"] }});
+
+        if {{ entity["entity_name"] }}.id.is_none() {
+            return Err(Status::invalid_argument("{{ entity["entity_name"] }} id is required"));
+        }
 
         self.persistence.update_{{ entity["entity_name"] }}({{ entity["entity_name"] }}.convert_to()?)
             .await

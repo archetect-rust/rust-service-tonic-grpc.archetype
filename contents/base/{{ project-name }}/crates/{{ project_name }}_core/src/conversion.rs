@@ -18,9 +18,7 @@ pub trait ConvertFrom<T>: Sized {
 impl ConvertFrom<{{ entity["entity_name"] }}::Model> for {{ entity["EntityName"] }} {
     fn convert_from(value: {{ entity["entity_name"] }}::Model) -> Self {
         {{ entity["EntityName"] }} {
-            id: Some(Id {
-                value: value.id.to_string(),
-            }),
+            id: Some(value.id.to_string()),
 {%- for field_key in entity.fields -%}
 {%- set field = entity.fields[field_key] %}
             {{ field["field_name"] }} : value.{{ field["field_name"] }},
@@ -31,8 +29,9 @@ impl ConvertFrom<{{ entity["entity_name"] }}::Model> for {{ entity["EntityName"]
 
 impl ConvertTo<{{ entity["entity_name"] }}::ActiveModel> for {{ entity["EntityName"] }} {
     fn convert_to(self) -> std::result::Result<{{ entity["entity_name"] }}::ActiveModel, Status> {
+        let id = self.id.convert_to()?;
         Ok({{ entity["entity_name"] }}::ActiveModel {
-            id: ActiveValue::Set(self.id.convert_to()?),
+            id: id.map(|id| ActiveValue::Set(id)).unwrap_or( ActiveValue::NotSet),
 {%- for field_key in entity.fields -%}
 {%- set field = entity.fields[field_key] %}
             {{ field["field_name"] }}: ActiveValue::Set(self.{{ field["field_name"] }}),
@@ -42,18 +41,18 @@ impl ConvertTo<{{ entity["entity_name"] }}::ActiveModel> for {{ entity["EntityNa
 }
 {%- endfor %}
 
-impl ConvertTo<Uuid> for Option<Id> {
-    fn convert_to(self) -> Result<Uuid, Status> {
+impl ConvertTo<Option<Uuid>> for Option<String> {
+    fn convert_to(self) -> Result<Option<Uuid>, Status> {
         match self {
-            None => Err(Status::invalid_argument("Id is required".to_string())),
-            Some(id) => id.convert_to(),
+            None => Ok(None),
+            Some(id) => Ok(Some(id.convert_to()?)),
         }
     }
 }
 
-impl ConvertTo<Uuid> for Id {
+impl ConvertTo<Uuid> for String {
     fn convert_to(self) -> Result<Uuid, Status> {
-        Uuid::from_str(self.value.as_str())
+        Uuid::from_str(self.as_str())
             .map_err(|_| Status::invalid_argument("Id was not set to a valid UUID".to_string()))
     }
 }
