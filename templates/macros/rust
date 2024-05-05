@@ -5,16 +5,11 @@ use crate::proto::{{'{'}}{{ entity["EntityName"]}}, Get{{ entity["EntityName"]}}
 
 {%- macro field_column_type(field) -%}
 {%- if field["type"] == "String" %}.string()
-{%- elif field["type"] == "Int" %}.integer()
 {%- elif field["type"] == "I32" %}.integer()
-{%- elif field["type"] == "Long" %}.big_integer()
 {%- elif field["type"] == "I64" %}.big_integer()
 {%- elif field["type"] == "F32" %}.float()
-{%- elif field["type"] == "Float" %}.float()
 {%- elif field["type"] == "F64" %}.double()
-{%- elif field["type"] == "Double" %}.double()
 {%- elif field["type"] == "Bool" %}.boolean()
-{%- elif field["type"] == "Boolean" %}.boolean()
 {%- elif field["type"] == "UUID" %}.uuid()
 {%- elif field["type"] == "Bytes" %}.binary()
 {%- elif field["type"] == "DateTime" %}.date_time()
@@ -30,14 +25,10 @@ ColumnDef::new(entities::{{ entity["entity_name"] }}::Column::{{ field["FieldNam
 {%- if field["type"] == "String" %}String
 {%- elif field["type"] == "Int" %}i32
 {%- elif field["type"] == "I32" %}i32
-{%- elif field["type"] == "Long" %}i64
 {%- elif field["type"] == "I64" %}i64
 {%- elif field["type"] == "F32" %}f32
-{%- elif field["type"] == "Float" %}f32
 {%- elif field["type"] == "F64" %}f64
-{%- elif field["type"] == "Double" %}f64
 {%- elif field["type"] == "Bool" %}bool
-{%- elif field["type"] == "Boolean" %}bool
 {%- elif field["type"] == "UUID" %}uuid::Uuid
 {%- elif field["type"] == "Bytes" %}Vec<u8>
 {%- elif field["type"] == "DateTime" %}DateTime

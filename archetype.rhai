@@ -1,7 +1,5 @@
 let context = #{};
 
-
-
 context += prompt("Project Prefix:", "project-prefix", #{
     default_value: "",
     cases: CasedIdentityCasedValue(PROGRAMMING_CASES),
@@ -44,7 +42,7 @@ render(protobuf_archetype, Path(`${context["project-name"]}/specs/self`), contex
 
 if context.applications != () {
     for application in context.applications.values() {
-        render(protobuf_archetype, Path(`${context["project-name"]}/specs/clients/protobufs`), application);
+        render(protobuf_archetype, Path(`${context["project-name"]}/specs/clients/`), application);
     }
 }
 
