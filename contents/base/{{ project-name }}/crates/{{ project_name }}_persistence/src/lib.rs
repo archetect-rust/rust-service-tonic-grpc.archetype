@@ -101,7 +101,7 @@ impl Builder {
 
         let connection: DatabaseConnection = Database::connect(options).await?;
 
-        if self.settings.migrate().or(Some(true)).unwrap() || temp_db.is_some() {
+        if self.settings.migrate().or(Some(false)).unwrap() || temp_db.is_some() {
             migrations::Migrator::up(&connection, None).await?;
         }
 

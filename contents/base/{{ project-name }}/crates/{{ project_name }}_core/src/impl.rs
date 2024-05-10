@@ -5,7 +5,7 @@ use tracing::info;
 use {{ project_name }}_persistence::Page;
 
 use crate::{{ ProjectName }}Core;
-use crate::conversion::{ConvertFrom, ConvertTo};
+use crate::conversion::{ConvertFrom, TryConvertTo};
 {%- for entity_key in model.entities -%}
 {%- set entity = model.entities[entity_key] %}
 {{ rust.entity_proto_imports(entity) }}{% endfor %}
@@ -19,7 +19,7 @@ impl {{ ProjectName }} for {{ ProjectName }}Core {
         let {{ entity["entity_name"] }} = request.into_inner();
         info!("Creating: {:?}", {{ entity["entity_name"] }});
 
-        self.persistence.insert_{{ entity["entity_name"] }}({{ entity["entity_name"] }}.convert_to()?)
+        self.persistence.insert_{{ entity["entity_name"] }}({{ entity["entity_name"] }}.try_convert_to()?)
             .await
             .map({{ entity["EntityName"] }}::convert_from)
             .map(Response::new)
@@ -29,7 +29,7 @@ impl {{ ProjectName }} for {{ ProjectName }}Core {
     async fn get_{{ entity["entity_name"] }}(&self, request: Request<Get{{ entity["EntityName"] }}Request>) -> Result<Response<{{ entity["EntityName"] }}>, Status> {
         let request = request.into_inner();
         info!("Getting {{ entity["EntityName"] }}: {:?}", request);
-        let id = request.id.convert_to()?;
+        let id = request.id.try_convert_to()?;
 
         self.persistence.find_{{ entity["entity_name"] }}(id)
             .await
@@ -78,7 +78,7 @@ impl {{ ProjectName }} for {{ ProjectName }}Core {
             return Err(Status::invalid_argument("{{ entity["entity_name"] }} id is required"));
         }
 
-        self.persistence.update_{{ entity["entity_name"] }}({{ entity["entity_name"] }}.convert_to()?)
+        self.persistence.update_{{ entity["entity_name"] }}({{ entity["entity_name"] }}.try_convert_to()?)
             .await
             .map({{ entity["EntityName"] }}::convert_from)
             .map(Response::new)

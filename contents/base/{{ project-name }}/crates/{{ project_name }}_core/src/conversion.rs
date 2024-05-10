@@ -6,11 +6,19 @@ use tonic::Status;
 use crate::proto::*;
 
 pub trait ConvertTo<T>: Sized {
-    fn convert_to(self) -> Result<T, Status>;
+    fn convert_to(self) -> T;
+}
+
+pub trait TryConvertTo<T, E>: Sized {
+    fn try_convert_to(self) -> Result<T, E>;
 }
 
 pub trait ConvertFrom<T>: Sized {
     fn convert_from(value: T) -> Self;
+}
+
+pub trait TryConvertFrom<T: Sized, E> {
+    fn try_convert_from(value: T) -> Result<T, E>;
 }
 {%- for entity_key in model.entities -%}
 {%- set entity = model.entities[entity_key] %}
@@ -27,9 +35,9 @@ impl ConvertFrom<{{ entity["entity_name"] }}::Model> for {{ entity["EntityName"]
     }
 }
 
-impl ConvertTo<{{ entity["entity_name"] }}::ActiveModel> for {{ entity["EntityName"] }} {
-    fn convert_to(self) -> std::result::Result<{{ entity["entity_name"] }}::ActiveModel, Status> {
-        let id = self.id.convert_to()?;
+impl TryConvertTo<{{ entity["entity_name"] }}::ActiveModel, Status> for {{ entity["EntityName"] }} {
+    fn try_convert_to(self) -> std::result::Result<{{ entity["entity_name"] }}::ActiveModel, Status> {
+        let id = self.id.try_convert_to()?;
         Ok({{ entity["entity_name"] }}::ActiveModel {
             id: id.map(|id| ActiveValue::Set(id)).unwrap_or( ActiveValue::NotSet),
 {%- for field_key in entity.fields -%}
@@ -41,17 +49,17 @@ impl ConvertTo<{{ entity["entity_name"] }}::ActiveModel> for {{ entity["EntityNa
 }
 {%- endfor %}
 
-impl ConvertTo<Option<Uuid>> for Option<String> {
-    fn convert_to(self) -> Result<Option<Uuid>, Status> {
+impl TryConvertTo<Option<Uuid>, Status> for Option<String> {
+    fn try_convert_to(self) -> Result<Option<Uuid>, Status> {
         match self {
             None => Ok(None),
-            Some(id) => Ok(Some(id.convert_to()?)),
+            Some(id) => Ok(Some(id.try_convert_to()?)),
         }
     }
 }
 
-impl ConvertTo<Uuid> for String {
-    fn convert_to(self) -> Result<Uuid, Status> {
+impl TryConvertTo<Uuid, Status> for String {
+    fn try_convert_to(self) -> Result<Uuid, Status> {
         Uuid::from_str(self.as_str())
             .map_err(|_| Status::invalid_argument("Id was not set to a valid UUID".to_string()))
     }

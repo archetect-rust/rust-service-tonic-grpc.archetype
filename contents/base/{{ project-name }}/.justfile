@@ -18,3 +18,8 @@ install-defaults := ''
 
 install install-options=install-defaults:
     cargo install --path crates/{{ project_name }}_bin/ {{'{'}}{ install-options }}
+
+build-defaults := ''
+
+build build-options=build-defaults:
+    cargo build {{'{'}}{ build-options }}
